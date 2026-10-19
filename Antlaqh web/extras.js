@@ -86,14 +86,14 @@
           mk(k, v, FAMILIES.filter(f => f.cat === k).length)).join("");
     }
 
-    const isVid = p => /\\.(mp4|mov|m4v|webm)(\\?|$)/i.test(p);
+    const isVid = p => /\.(mp4|mov|m4v|webm)(\?|#|$)/i.test(p);
     const gallery = f => {
       const pics = (f.images && f.images.length ? f.images : [f.image]).filter(Boolean);
       const hasVideo = Boolean(f.video) || pics.some(isVid);
       if (hasVideo) {
         const items = [...(f.video ? [[f.video, "video"]] : []), ...pics.map(p => [p, isVid(p) ? "video" : "img"])];
         const el = ([src, kind]) => kind === "video"
-          ? `<video controls playsinline preload="metadata"><source src="${src}" type="${/\\.webm/i.test(src) ? "video/webm" : "video/mp4"}"></video>`
+          ? `<video controls playsinline preload="metadata" src="${src}#t=0.001"></video>`
           : `<img src="${src}" alt="منتجات ${f.name}" loading="lazy">`;
         return `<div class="gallery"><div class="slides">${items.map(el).join("")}</div>${items.length > 1 ? `<button type="button" class="g-btn prev" data-dir="prev" aria-label="السابق">›</button><button type="button" class="g-btn next" data-dir="next" aria-label="التالي">‹</button><span class="count">1 / ${items.length}</span>` : ""}</div>`;
       }
@@ -163,7 +163,7 @@
       count.textContent = term || cat !== "all" ? list.length + " نتيجة" : "";
       reel.innerHTML = list.length
         ? list.map(postHTML).join("")
-        : `<p class="empty">ما لقينا أسرة مطابقة، جرّبي كلمة ثانية أو قسم آخر.</p>`;
+        : `<p class="empty">لم نعثر على أسرة مطابقة، جرّبي كلمة أخرى أو قسمًا آخر.</p>`;
       return list.length;
     }
 

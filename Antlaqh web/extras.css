@@ -86,56 +86,78 @@
 .fade-gallery .slides img.active{opacity:1;visibility:visible;pointer-events:auto;z-index:1}
 @media(prefers-reduced-motion:reduce){.fade-gallery .slides img{transition:none}}
 
-/* Keep other shops' portrait and square media compact without cropping.
-   Bloomy's horizontal portfolio gallery is intentionally excluded. */
-.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides img,
-.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides video {
-  height: clamp(220px, 54vw, 340px);
-  max-height: 340px;
-  aspect-ratio: auto;
-  object-fit: contain;
-  background: var(--soft);
+/* ===== إطار الصور والفيديو: موحّد ومرتّب ===== */
+/* الإطار داخل البطاقة بهوامش وزوايا مدورة، بنسبة ثابتة، والمحتوى يظهر كامل بدون قص */
+.reel .post .gallery,
+.reel .post > .post-img{
+  inline-size:calc(100% - 28px);
+  margin:0 14px;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid var(--edge);
+  background:var(--soft);
+  box-shadow:var(--sh-sm);
 }
-.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides {
-  align-items: center;
-  background: var(--soft);
+.reel .post .gallery .slides{
+  inline-size:100%;
+  aspect-ratio:4/3;
+  max-block-size:none;
+  align-items:stretch;
+  background:var(--soft);
 }
-.reel .post:not([data-name="تصاميم بلومي"]) .fade-gallery .slides {
-  aspect-ratio: 16/10;
-  max-height: 340px;
+.reel .post .gallery .slides img,
+.reel .post .gallery .slides video{
+  flex:0 0 100%;
+  inline-size:100%;
+  block-size:100%;
+  min-block-size:0;
+  max-block-size:none;
+  aspect-ratio:auto;
+  object-fit:contain;
+  background:transparent;
 }
-.reel .post:not([data-name="تصاميم بلومي"]) .post-img {
-  display: block;
-  width: 100%;
-  height: clamp(220px, 54vw, 340px);
-  max-height: 340px;
-  object-fit: contain;
-  background: var(--soft);
-}
+.reel .post .gallery .slides video{background:#000}
 
-/* Desktop sizing: all stores except Bloomy get a genuinely compact media viewport.
-   Set dimensions on the gallery itself, not only on its images, so grid/flex
-   containers cannot expand to the image's intrinsic portrait height. */
-@media (min-width: 700px) {
-  .reel .post:not([data-name="تصاميم بلومي"]) .gallery,
-  .reel .post:not([data-name="تصاميم بلومي"]) > .post-img {
-    width: min(100%, 420px);
-    margin-inline: auto;
-  }
-  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides {
-    width: 100%;
-    height: 255px;
-    max-height: 255px;
-    aspect-ratio: auto;
-    overflow: hidden;
-  }
-  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides img,
-  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides video,
-  .reel .post:not([data-name="تصاميم بلومي"]) > .post-img {
-    height: 255px;
-    max-height: 255px;
-    min-height: 0;
-    aspect-ratio: auto;
-    object-fit: contain;
-  }
+/* صورة واحدة فقط */
+.reel .post > .post-img{
+  display:block;
+  block-size:auto;
+  max-block-size:none;
+  aspect-ratio:4/3;
+  object-fit:contain;
+}
+.reel .post > .post-img[src^="data:"]{object-fit:cover}
+
+/* بلومي: معرض أفقي للتصاميم */
+.reel .post[data-name="تصاميم بلومي"] .gallery .slides{aspect-ratio:16/10}
+
+/* العدّاد والأسهم */
+.reel .gallery .count{
+  top:10px;
+  padding:3px 12px;
+  background:rgba(20,12,40,.6);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  letter-spacing:.5px;
+}
+.reel .g-btn{
+  inline-size:34px;
+  block-size:34px;
+  font-size:1.3rem;
+  background:rgba(255,255,255,.9);
+  opacity:.9;
+  transition:transform .2s,opacity .2s;
+}
+.reel .g-btn:hover{opacity:1;transform:translateY(-50%) scale(1.08)}
+
+/* مسافة مرتبة بين الإطار والأزرار */
+.reel .post .gallery + .post-actions,
+.reel .post > .post-img + .post-actions{padding-block-start:14px}
+
+@media (max-width:600px){
+  .reel .post .gallery,
+  .reel .post > .post-img{inline-size:calc(100% - 20px);margin:0 10px;border-radius:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .reel .g-btn{transition:none}
 }

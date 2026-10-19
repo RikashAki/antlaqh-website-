@@ -225,7 +225,7 @@ function initApplyForm() {
 
     const subject = encodeURIComponent("بيانات متجر جديد");
     const body = encodeURIComponent(
-      `اسم المتجر بالعربي: ${val("storeAr")}\n` +
+      `اسم المتجر بالعربية: ${val("storeAr")}\n` +
       `Store Name in English: ${val("storeEn")}\n` +
       `رابط الحساب / رقم التواصل: ${val("contact")}\n\n` +
       `وصف المبيعات:\n${val("description")}\n\n` +

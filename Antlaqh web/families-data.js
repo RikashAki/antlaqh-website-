@@ -62,15 +62,18 @@ const FAMILIES = [
     cat: "skincare",
     desc: "صابون وسكراب وكريم ترطيب" ,
     link: "https://api.whatsapp.com/send?phone=9660508863120",
-    images: ["photos/idk/1d.jpeg", "photos/idk/2d.jpeg", "photos/idk/3d.png", "photos/idk/4d.jpeg", "photos/idk/5d.jpeg", "photos/idk/6d.jpeg"],
+    images: ["photos/idk/1d.jpeg", "photos/idk/2d.jpeg", "photos/idk/4d.jpeg", "photos/idk/5d.jpeg", "photos/idk/6d.jpeg"],
     tags: ["بشرة", "منتجات العناية بالبشرة"]
   },
   {
     name: "جوجو كاندي",
     handle: "JoJo candy",
     cat: "sweets",
-    desc: "حلويات",
+    desc: `فخامة تُصنع بحب.. وطعمٌ يُقدّم طازجاً كل يوم ✨🍰
+نبتكر لكم أرقى الحلويات بمكونات طازجة وفاخرة، لنتشارك معكم أسرار اللذة في كل قطعة .",
+  `,
     link: "https://api.whatsapp.com/send?phone=9660501823741",
+    images: ["photos/jojo/1j.jpeg", "photos/jojo/2j.jpeg", "photos/jojo/3j.jpeg", "photos/jojo/4j.jpeg", "photos/jojo/5j.jpeg", "photos/jojo/6j.jpeg"],
     tags: ["اكل", "كوكيز", "حلويات"]
   },
   {
