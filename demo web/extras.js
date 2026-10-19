@@ -27,6 +27,52 @@
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeBox(); });
 
     const liked = new Set();
+    // Public reviews via Supabase REST API. Only a publishable/anon key belongs in config.
+    const config = window.ANTLAQH_SUPABASE || {};
+    const supabaseReady = /^https:\/\/[^/]+\.supabase\.co\/?$/.test(config.url || "") &&
+      typeof config.anonKey === "string" && config.anonKey.length > 10;
+    const reviewCache = new Map();
+    const safeText = value => String(value).replace(/[&<>"']/g, char =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    const api = (path, options = {}) => fetch(config.url.replace(/\/$/, "") + "/rest/v1/" + path, {
+      ...options,
+      headers: { apikey: config.anonKey, Authorization: "Bearer " + config.anonKey,
+        "Content-Type": "application/json", ...options.headers }
+    }).then(async response => {
+      if (!response.ok) throw new Error("Supabase request failed: " + response.status);
+      return response.status === 204 ? null : response.json();
+    });
+    const reviewsHTML = name => {
+      const reviews = reviewCache.get(name) || [];
+      const entries = reviews.map(r =>
+        '<div class="review-item"><strong>' + safeText(r.customer_name) + '</strong> <span class="review-stars">' +
+        "★".repeat(r.rating) + "☆".repeat(5 - r.rating) +
+        '</span><p>' + safeText(r.comment) + '</p></div>').join("");
+      return '<section class="customer-reviews"><h3>تقييمات العملاء</h3>' +
+        '<p class="review-note">' + (supabaseReady ? 'تظهر التقييمات للجميع فور إرسالها.' : 'التقييمات غير متاحة مؤقتًا حتى يتم ربط قاعدة البيانات.') + '</p>' +
+        '<div class="review-list">' + (entries || '<p class="review-empty">لا توجد تقييمات منشورة بعد.</p>') + '</div>' +
+        (supabaseReady ? '<form class="review-form"><label>اسمك<input name="customer_name" type="text" required minlength="2" maxlength="60" autocomplete="name" placeholder="اكتبي اسمك"></label>' +
+        '<label>تقييمك<select name="rating" required><option value="">اختاري عدد النجوم</option>' +
+        [5,4,3,2,1].map(n => '<option value="' + n + '">' + "★".repeat(n) + ' (' + n + ')</option>').join("") +
+        '</select></label><label>اكتبي رأيك<textarea name="review" required minlength="3" maxlength="500" rows="3" placeholder="كيف كانت تجربتك مع المتجر؟"></textarea></label>' +
+        '<button type="submit">إرسال التقييم</button><p class="review-status" role="status" aria-live="polite"></p></form>' : '') + '</section>';
+    };
+    const refreshReviews = async () => {
+      if (!supabaseReady) return;
+      try {
+        const records = await api("reviews?select=business_name,customer_name,rating,comment&approved=eq.true&order=created_at.desc&limit=500");
+        reviewCache.clear();
+        for (const review of records) {
+          if (!reviewCache.has(review.business_name)) reviewCache.set(review.business_name, []);
+          reviewCache.get(review.business_name).push(review);
+        }
+        document.querySelectorAll("#reel .post").forEach(post => {
+          const section = post.querySelector(".customer-reviews");
+          if (section && !section.querySelector(".review-form :focus")) section.outerHTML = reviewsHTML(post.dataset.name);
+        });
+      } catch (error) { console.error("Unable to load reviews", error); }
+    };
+
     let cat = "all", term = "";
 
     const art = f => "data:image/svg+xml," + encodeURIComponent(
@@ -40,21 +86,54 @@
           mk(k, v, FAMILIES.filter(f => f.cat === k).length)).join("");
     }
 
-    const isVid = p => /\.(mp4|mov|m4v|webm)(\?|$)/i.test(p);
+    const isVid = p => /\\.(mp4|mov|m4v|webm)(\\?|$)/i.test(p);
     const gallery = f => {
       const pics = (f.images && f.images.length ? f.images : [f.image]).filter(Boolean);
-      const items = [...(f.video ? [[f.video, "video"]] : []), ...pics.map(p => [p, isVid(p) ? "video" : "img"])];
-      const el = ([src, kind]) => kind === "video"
-        ? `<video controls playsinline preload="metadata"><source src="${src}" type="${/\.webm/i.test(src) ? "video/webm" : "video/mp4"}"></video>`
-        : `<img src="${src}" alt="منتجات ${f.name}" loading="lazy">`;
-      if (!items.length) return `<img class="post-img" src="${art(f)}" alt="منتجات ${f.name}">`;
-      if (items.length === 1 && items[0][1] === "img") return `<img class="post-img" src="${pics[0]}" alt="منتجات ${f.name}" loading="lazy">`;
-      const nav = items.length > 1 ? `
-        <button type="button" class="g-btn prev" data-dir="prev" aria-label="السابق">›</button>
-        <button type="button" class="g-btn next" data-dir="next" aria-label="التالي">‹</button>
-        <span class="count">1 / ${items.length}</span>` : "";
-      return `<div class="gallery"><div class="slides">${items.map(el).join("")}</div>${nav}</div>`;
+      const hasVideo = Boolean(f.video) || pics.some(isVid);
+      if (hasVideo) {
+        const items = [...(f.video ? [[f.video, "video"]] : []), ...pics.map(p => [p, isVid(p) ? "video" : "img"])];
+        const el = ([src, kind]) => kind === "video"
+          ? `<video controls playsinline preload="metadata"><source src="${src}" type="${/\\.webm/i.test(src) ? "video/webm" : "video/mp4"}"></video>`
+          : `<img src="${src}" alt="منتجات ${f.name}" loading="lazy">`;
+        return `<div class="gallery"><div class="slides">${items.map(el).join("")}</div>${items.length > 1 ? `<button type="button" class="g-btn prev" data-dir="prev" aria-label="السابق">›</button><button type="button" class="g-btn next" data-dir="next" aria-label="التالي">‹</button><span class="count">1 / ${items.length}</span>` : ""}</div>`;
+      }
+      if (f.name !== "تصاميم بلومي") {
+        if (!pics.length) return `<img class="post-img" src="${art(f)}" alt="منتجات ${f.name}">`;
+        if (pics.length === 1) return `<img class="post-img" src="${pics[0]}" alt="منتجات ${f.name}" loading="lazy">`;
+        return `<div class="gallery"><div class="slides">${pics.map(src=>`<img src="${src}" alt="منتجات ${f.name}" loading="lazy">`).join("")}</div><button type="button" class="g-btn prev" data-dir="prev" aria-label="السابق">›</button><button type="button" class="g-btn next" data-dir="next" aria-label="التالي">‹</button><span class="count">1 / ${pics.length}</span></div>`;
+      }
+      if (!pics.length) return `<img class="post-img" src="${art(f)}" alt="منتجات ${f.name}">`;
+      if (pics.length === 1) return `<img class="post-img" src="${pics[0]}" alt="منتجات ${f.name}" loading="lazy">`;
+      return `<div class="gallery fade-gallery" data-current="0"><div class="slides">${pics.map((src,i)=>`<img src="${src}" alt="منتجات ${f.name} - الصورة ${i+1}" loading="lazy" class="${i===0?"active":""}" aria-hidden="${i!==0}">`).join("")}</div><button type="button" class="g-btn prev" data-dir="prev" aria-label="السابق">›</button><button type="button" class="g-btn next" data-dir="next" aria-label="التالي">‹</button><span class="count">1 / ${pics.length}</span></div>`;
     };
+    const showFade = (g, index) => {
+      const imgs = [...g.querySelectorAll(".slides img")];
+      if (!imgs.length) return;
+      const i = ((index % imgs.length) + imgs.length) % imgs.length;
+      imgs.forEach((img,n) => { img.classList.toggle("active",n===i); img.setAttribute("aria-hidden",String(n!==i)); });
+      g.dataset.current=String(i);
+      g.querySelector(".count").textContent=`${i+1} / ${imgs.length}`;
+    };
+    setInterval(() => {
+      if (document.hidden || !box.hidden) return;
+      reel.querySelectorAll(".fade-gallery").forEach(g => {
+        if (Date.now() < Number(g.dataset.pauseUntil||0)) return;
+        showFade(g,Number(g.dataset.current||0)+1);
+      });
+    },3000);
+    reel.addEventListener("touchstart", e => {
+      const g=e.target.closest(".fade-gallery");
+      if(g) g.dataset.touchX=String(e.touches[0].clientX);
+    },{passive:true});
+    reel.addEventListener("touchend", e => {
+      const g=e.target.closest(".fade-gallery");
+      if(!g || !g.dataset.touchX) return;
+      const dx=e.changedTouches[0].clientX-Number(g.dataset.touchX);
+      delete g.dataset.touchX;
+      if(Math.abs(dx)<40)return;
+      showFade(g,Number(g.dataset.current||0)+(dx>0?1:-1));
+      g.dataset.pauseUntil=String(Date.now()+9000);
+    },{passive:true});
 
     const postHTML = f => {
       const on = liked.has(f.name);
@@ -73,6 +152,7 @@
           <p><b>${f.name}</b> ${f.desc}</p>
           <a class="btn-link" href="${f.link}" target="_blank" rel="noopener">زيارة المتجر</a>
         </div>
+        ${reviewsHTML(f.name)}
       </article>`;
     };
 
@@ -97,12 +177,18 @@
       const post = e.target.closest(".post"); if (!post) return;
       const nav = e.target.closest(".g-btn");
       if (nav) {
+        const fade=nav.closest(".fade-gallery");
+        if(fade){
+          showFade(fade,Number(fade.dataset.current||0)+(nav.dataset.dir==="next"?1:-1));
+          fade.dataset.pauseUntil=String(Date.now()+9000);
+          return;
+        }
         const sl = nav.parentElement.querySelector(".slides");
         const d = getComputedStyle(sl).direction === "rtl" ? -1 : 1;
         sl.scrollBy({ left: (nav.dataset.dir === "next" ? 1 : -1) * d * sl.clientWidth, behavior: "smooth" });
         return;
       }
-      const pic = e.target.closest(".post-img, .slides img");
+      const pic = e.target.closest(".post-img, .slides img.active, .gallery:not(.fade-gallery) .slides img");
       if (pic) { openBox(pic.src, pic.alt); return; }
       const f = FAMILIES.find(x => x.name === post.dataset.name); if (!f) return;
       const like = e.target.closest(".like"), share = e.target.closest(".share");
@@ -118,6 +204,34 @@
           share.textContent = "✓"; setTimeout(() => (share.textContent = "⤴"), 1500);
         });
       }
+    });
+
+
+    reel.addEventListener("submit", async e => {
+      const form = e.target.closest(".review-form");
+      if (!form || !supabaseReady) return;
+      e.preventDefault();
+      const post = form.closest(".post");
+      const customerName = form.elements.customer_name.value.trim();
+      const rating = Number(form.elements.rating.value);
+      const comment = form.elements.review.value.trim();
+      if (!post || customerName.length < 2 || customerName.length > 60 ||
+          !Number.isInteger(rating) || rating < 1 || rating > 5 ||
+          comment.length < 3 || comment.length > 500) return;
+      const button = form.querySelector('button[type="submit"]');
+      const status = form.querySelector(".review-status");
+      button.disabled = true;
+      status.textContent = "جارٍ إرسال التقييم...";
+      try {
+        await api("reviews", { method: "POST", headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ business_name: post.dataset.name, customer_name: customerName, rating, comment }) });
+        form.reset();
+        status.textContent = "شكرًا! تم نشر تقييمك.";
+        await refreshReviews();
+      } catch (error) {
+        status.textContent = "تعذّر إرسال التقييم. حاولي مرة أخرى.";
+        console.error(error);
+      } finally { button.disabled = false; }
     });
 
     // عدّاد الصور 1 / 3
@@ -137,7 +251,7 @@
       return n;
     };
 
-    renderChips(); filter();
+    renderChips(); filter(); refreshReviews();
   }
 
   /* ---------- Pricing calculator ---------- */

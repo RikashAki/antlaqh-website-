@@ -61,3 +61,81 @@
 .lb-x{position:absolute;top:14px;inset-inline-end:14px;inline-size:44px;block-size:44px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:1.3rem;cursor:pointer}
 
 .slides video{flex:0 0 100%;inline-size:100%;aspect-ratio:16/10;object-fit:contain;background:#000;scroll-snap-align:center}
+
+/* Customer review section */
+.customer-reviews{padding:18px 22px 24px;border-top:1px solid var(--edge)}
+.customer-reviews h3{margin:0 0 4px;font-size:1.15rem;color:var(--ink)}
+.review-note,.review-empty{font-size:.85rem;color:var(--mu);margin:0 0 12px}
+.review-list{display:grid;gap:10px;margin:12px 0}
+.review-item{padding:10px 14px;background:var(--soft);border-radius:12px;overflow-wrap:anywhere}
+.review-item strong{color:var(--gold);letter-spacing:2px}
+.review-item p{margin:4px 0 0;white-space:pre-wrap}
+.review-form{display:grid;gap:12px}
+.review-form label{display:grid;gap:5px;font-weight:700;font-size:.92rem}
+.review-form select,.review-form textarea{font:inherit;width:100%;padding:10px 12px;color:var(--ink);background:var(--card);border:1px solid var(--edge);border-radius:12px}
+.review-form button{border:0;border-radius:12px;background:var(--grad);color:var(--on-grad);font:inherit;font-weight:800;padding:11px 18px;cursor:pointer}
+
+.review-item .review-stars{color:var(--gold);letter-spacing:2px;margin-inline-start:6px}
+.review-form input{font:inherit;width:100%;padding:10px 12px;color:var(--ink);background:var(--card);border:1px solid var(--edge);border-radius:12px}
+.review-form button:disabled{opacity:.6;cursor:wait}
+.review-status{margin:0;color:var(--teal);font-size:.9rem}
+
+/* Automatic image-only galleries: smooth three-second crossfade. */
+.fade-gallery .slides{position:relative;display:grid;overflow:hidden;aspect-ratio:16/10;scroll-snap-type:none;background:var(--soft)}
+.fade-gallery .slides img{grid-area:1/1;width:100%;height:100%;aspect-ratio:auto;object-fit:contain;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .75s ease,visibility .75s ease;scroll-snap-align:none}
+.fade-gallery .slides img.active{opacity:1;visibility:visible;pointer-events:auto;z-index:1}
+@media(prefers-reduced-motion:reduce){.fade-gallery .slides img{transition:none}}
+
+/* Keep other shops' portrait and square media compact without cropping.
+   Bloomy's horizontal portfolio gallery is intentionally excluded. */
+.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides img,
+.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides video {
+  height: clamp(220px, 54vw, 340px);
+  max-height: 340px;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: var(--soft);
+}
+.reel .post:not([data-name="تصاميم بلومي"]) .gallery:not(.fade-gallery) .slides {
+  align-items: center;
+  background: var(--soft);
+}
+.reel .post:not([data-name="تصاميم بلومي"]) .fade-gallery .slides {
+  aspect-ratio: 16/10;
+  max-height: 340px;
+}
+.reel .post:not([data-name="تصاميم بلومي"]) .post-img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 54vw, 340px);
+  max-height: 340px;
+  object-fit: contain;
+  background: var(--soft);
+}
+
+/* Desktop sizing: all stores except Bloomy get a genuinely compact media viewport.
+   Set dimensions on the gallery itself, not only on its images, so grid/flex
+   containers cannot expand to the image's intrinsic portrait height. */
+@media (min-width: 700px) {
+  .reel .post:not([data-name="تصاميم بلومي"]) .gallery,
+  .reel .post:not([data-name="تصاميم بلومي"]) > .post-img {
+    width: min(100%, 420px);
+    margin-inline: auto;
+  }
+  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides {
+    width: 100%;
+    height: 255px;
+    max-height: 255px;
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides img,
+  .reel .post:not([data-name="تصاميم بلومي"]) .gallery .slides video,
+  .reel .post:not([data-name="تصاميم بلومي"]) > .post-img {
+    height: 255px;
+    max-height: 255px;
+    min-height: 0;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+}
