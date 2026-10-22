@@ -162,7 +162,7 @@
     const gallery = f => {
       const pics = [...(f.video ? [f.video] : []), ...(f.images && f.images.length ? f.images : [f.image])].filter(Boolean);
       if (!pics.length) return `<img class="post-img" src="${art(f)}" alt="${T("productsOf")} ${f.name}">`;
-      const many = pics.length > 1, fade = many && f.name === "تصاميم بلومي";
+      const many = pics.length > 1, fade = many;
       return `<div class="gallery${fade ? " fade-gallery" : ""}" data-current="0"><div class="slides">${pics.map((p, i) => slideHTML(p, f, i, fade)).join("")}</div>${many ? `<button type="button" class="g-btn prev" data-dir="prev" aria-label="${T("prev")}">${chev}</button><button type="button" class="g-btn next" data-dir="next" aria-label="${T("next")}">${chev}</button><span class="count">1 / ${pics.length}</span>` : ""}</div>`;
     };
     // frame ratio follows the first item; each item picks cover/contain so there are no big bars

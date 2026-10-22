@@ -124,7 +124,7 @@
     "السعر مقرّب لأقرب نصف ريال. قارنيه بأسعار المتاجر المشابهة قبل أن تعتمديه.": "The price is rounded to the nearest half riyal. Compare it with similar stores before you settle on it.",
     "بوابة تدعم الأسر المنتجة": "A portal that supports productive families",
     "فريق العمل والإشراف": "Team and supervision", "إشراف المعلمة: جواهر آل فواز": "Supervised by teacher: Jawaher Al Fawaz",
-    "قيادة وإدارة المشروع، وهندسة البرمجيات، واختبار الأنظمة وضمان جودتها: ملاذ الجعيدي": "Project leadership and management, software engineering, system testing and quality assurance: Malath Al-Juaidi",
+    "قيادة وإدارة المشروع، وهندسة البرمجيات، واختبار الأنظمة وضمان جودتها: ملاذ الجعيدي": "Project leadership and management, software engineering, system testing and quality assurance: Malathe Al-Jaidi",
     "الإشراف التقني وتطوير الأنظمة: لمار أبو طير": "Technical supervision and systems development: Lamar AbuTair",
     "المحتوى والدعم": "Content and support",
     "قصص الأسر المنتجة: ميمونة الضباعي , ايات الجبان": "Productive families' stories: Maimouna Al-Dababi, Ayat Al-Jaban",
