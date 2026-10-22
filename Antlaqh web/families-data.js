@@ -31,9 +31,9 @@ const FAMILIES = [
     name: "تصاميم بلومي",
     handle: "bloomy designs",
     cat: "projects",
-    desc: "متجر متخصص في تصميم العروض التقديمية والخدمات الإلكترونيه والمحتوى الرقمي بأسلوب إبداعي ومميز، من العروض المدرسية والتعليمية إلى التصاميم، المواقع التفاعلية، الفيديوهات والمشاريع الرقمية. نهتم بأدق التفاصيل  فكرتك إلى عمل مرتب، جذاب، وجاهز للاستخدام.✨",
+    desc: "مو مجرد تصاميم… عالم من الإبداع والتقنية! ✨ من فيديوهات وأنيميشن بالذكاء الاصطناعي، وتصميم وتطوير المواقع الإلكترونية، والألعاب والأنشطة التفاعلية، وتجارب الواقع المعزز (AR) والقصص التفاعلية (H5P)، إلى العروض التقديمية الاحترافية، وبكجات التخرج والسينورز المتكاملة (عروض، ألعاب، إعلانات، توزيعات وملفات)، نحوّل أفكارك إلى أعمال تخطف الأنظار! 💗\n\n💌 وعندك فكرة مختلفة؟ مهما كانت فكرتك، شاركينا إياها وخلّي علينا نحوّلها إلى واقع بلمسة إبداعية تميزك! ✨\n\nتواصلي معنا الآن!",
     link: "https://api.whatsapp.com/send?phone=9660500838531",
-    images: ["photos/bloomy store photos/01.jpeg","photos/bloomy store photos/07.jpeg","photos/bloomy store photos/09.jpeg","photos/bloomy store photos/08.jpeg","photos/bloomy store photos/02.jpeg","photos/bloomy store photos/04.jpeg","photos/bloomy store photos/03.jpeg","photos/bloomy store photos/05.jpeg","photos/bloomy store photos/10.jpeg","photos/bloomy store photos/06.jpeg"],
+    images: ["photos/bloomy store photos/01.jpeg","photos/bloomy store photos/bloomy_video_2_13s.mp4","photos/bloomy store photos/02.jpeg","photos/bloomy store photos/girls presentation.png","photos/bloomy store photos/09.jpeg","photos/bloomy store photos/03.jpeg","photos/bloomy store photos/675416612_1792429185320009.mp4","photos/bloomy store photos/05.jpeg","photos/bloomy store photos/08.jpeg","photos/bloomy store photos/06.jpeg"],
     tags: ["تصاميم", "مشاريع"]
   },
   {
