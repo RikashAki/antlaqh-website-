@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>انطلاقة</title>
-<link rel="icon" href="photos/the%20webs%20logo/logo.png">
+<link rel="icon" href="photos/the%20webs%20logo/logo.png" data-logo-ar="photos/the%20webs%20logo/logo.png" data-logo-en="photos/the%20webs%20logo/logo-en.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>try{var l=localStorage.getItem("antlaqh:lang");if(l==="en"||l==="ar"){document.documentElement.lang=l;document.documentElement.dir=l==="en"?"ltr":"rtl"}}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="extras.css">
 </head>
@@ -19,25 +20,26 @@
 <header class="top">
   <div class="wrap bar">
    <a class="brand" href="#home">
-  <img class="brand-logo" src="photos/the%20webs%20logo/logo.png" alt="شعار انطلاقة" width="54" height="54">
-  <span class="brand-text"><b>انطلاقة</b><small>من أسرنا إلى ريادتنا</small></span>
+  <img class="brand-logo" src="photos/the%20webs%20logo/logo.png" data-logo-ar="photos/the%20webs%20logo/logo.png" data-logo-en="photos/the%20webs%20logo/logo-en.png" alt="شعار انطلاقة" width="54" height="54">
+  <span class="brand-text"><b>انطلاقة</b><small data-i18n="brand.tag">من أسرنا إلى ريادتنا</small></span>
 </a>
 
-    <nav class="nav" aria-label="القائمة الرئيسية">
-      <a href="#home" aria-current="page" data-page="page-home">الرئيسية</a>
-      <a href="#about" data-page="page-about">الأسر المنتجة</a>
-      <a href="#services" data-page="page-services">قصص الأسر المنتجة</a>
-      <a href="#media" data-page="page-media">تواصل معنا</a>
-      <a href="#apply" data-page="page-apply">التقديم</a>
+    <nav class="nav" aria-label="القائمة الرئيسية" data-i18n-aria="nav.aria">
+      <a href="#home" aria-current="page" data-page="page-home" data-i18n="nav.home">الرئيسية</a>
+      <a href="#about" data-page="page-about" data-i18n="nav.families">الأسر المنتجة</a>
+      <a href="#services" data-page="page-services" data-i18n="nav.stories">قصص الأسر المنتجة</a>
+      <a href="#media" data-page="page-media" data-i18n="nav.contact">تواصل معنا</a>
+      <a href="#apply" data-page="page-apply" data-i18n="nav.apply">التقديم</a>
     </nav>
 
     <div class="tools">
       <form class="search" role="search">
-        <label class="sr" for="q">ابحث في البوابة</label>
-        <input id="q" type="search" placeholder="ابحث في البوابة">
-        <button aria-label="بحث" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+        <label class="sr" for="q" data-i18n="search.label">ابحث في البوابة</label>
+        <input id="q" type="search" placeholder="ابحث في البوابة" data-i18n-ph="search.ph">
+        <button aria-label="بحث" data-i18n-aria="search.btn" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       </form>
       <button class="ib" id="theme" aria-label="تبديل الوضع الداكن"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 13A9 9 0 1111 3a7 7 0 0010 10z"/></svg></button>
+      <button class="ib lang-btn" id="lang" type="button" lang="en" aria-label="Switch language to English" title="Switch language to English">EN</button>
     </div>
   </div>
 </header>
@@ -49,10 +51,10 @@
     <div class="hero">
       <div class="wrap">
        <div>
-         <h1>انطلاقة</h1>
-         <p class="slogan">من أسرنا إلى ريادتنا</p>
-         <p>تجمع الأسر الداعمة والطالبات لدعمهم وتوفير خدمات تعليمية متكاملة.</p>
-         <ul class="roles"><li>الطالبات</li><li>المعلمات</li><li>الأسر الداعمة</li></ul>
+         <h1 data-i18n="brand.name">انطلاقة</h1>
+         <p class="slogan" data-i18n="brand.tag">من أسرنا إلى ريادتنا</p>
+         <p data-i18n="hero.text">تجمع الأسر الداعمة والطالبات لدعمهم وتوفير خدمات تعليمية متكاملة.</p>
+         <ul class="roles"><li data-i18n="role.students">الطالبات</li><li data-i18n="role.teachers">المعلمات</li><li data-i18n="role.families">الأسر الداعمة</li></ul>
        </div>
 
       </div>
@@ -61,18 +63,18 @@
 
   <!-- ============ PAGE: ABOUT (الأسر المنتجة) ============ -->
   <section id="page-about" class="page-view wrap" hidden>
-    <h1>الأسر المنتجة</h1>
+    <h1 data-i18n="nav.families">الأسر المنتجة</h1>
 
     <a class="open-banner" href="#learn" data-go="learn">
-      <span><b>تريدين فتح متجرك الخاص؟</b><small>تعلّمي الخطوات وسعّري منتجاتك بأداة جاهزة</small></span>
+      <span><b data-i18n="banner.title">تريدين فتح متجرك الخاص؟</b><small data-i18n="banner.sub">تعلّمي الخطوات وسعّري منتجاتك بأداة جاهزة</small></span>
       <span aria-hidden="true">‹</span>
     </a>
 
     <div class="fam-tools">
-      <input id="famSearch" type="search" placeholder="ابحثي عن قسم أو متجر: ورد، حلويات، خياطة..." aria-label="بحث في الأسر المنتجة">
+      <input id="famSearch" type="search" placeholder="ابحثي عن قسم أو متجر: ورد، حلويات، خياطة..." aria-label="بحث في الأسر المنتجة" data-i18n-ph="fam.ph" data-i18n-aria="fam.aria">
       <span id="famCount" role="status"></span>
     </div>
-    <div class="chips" id="chips" aria-label="الأقسام"></div>
+    <div class="chips" id="chips" aria-label="الأقسام" data-i18n-aria="chips.aria"></div>
 
     <div class="fam-layout">
       <div class="feed">
@@ -141,23 +143,23 @@
     <aside class="sup">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></div>
       <h2 id="st">هل تحتاج إلى مساعدة بخصوص الموقع؟</h2>
-      <a class="insta-btn" href="https://www.instagram.com/skl105wuzhere/" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg><span>انستغرام</span></a>
+      <a class="insta-btn gmail-btn" href="mailto:schoollof105@gmail.com" aria-label="Gmail"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M3 7l9 6 9-6"/></svg><span>Gmail</span></a>
     </aside>
   </section>
 
   <!-- ============ PAGE: APPLY ============ -->
   <section id="page-apply" class="page-view wrap" hidden>
     <header class="sec-head">
-      <h2>التقديم</h2>
-      <p class="lead">عبّئي بيانات متجرك لتنضمي إلى الأسر المنتجة.</p>
+      <h2 data-i18n="apply.title">التقديم</h2>
+      <p class="lead" data-i18n="apply.lead">عبّئي بيانات متجرك لتنضمي إلى الأسر المنتجة.</p>
     </header>
 
     <form class="panel apply" id="applyForm" novalidate>
-      <h3>تعبئة بيانات المتجر</h3>
+      <h3 data-i18n="apply.form">تعبئة بيانات المتجر</h3>
 
       <div class="field">
-        <label for="storeAr">اسم المتجر بالعربية <span class="req" aria-hidden="true">*</span></label>
-        <input type="text" id="storeAr" name="storeAr" placeholder="مثال: متجر الورد" required autocomplete="off">
+        <label for="storeAr"><span data-i18n="apply.storeAr">اسم المتجر بالعربية</span> <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="storeAr" name="storeAr" placeholder="مثال: متجر الورد" data-i18n-ph="apply.storeArPh" required autocomplete="off">
       </div>
 
       <div class="field">
@@ -166,18 +168,18 @@
       </div>
 
       <div class="field">
-        <label for="contact">رابط الحساب / رقم التواصل <span class="req" aria-hidden="true">*</span></label>
-        <input type="text" id="contact" name="contact" placeholder="رابط إنستغرام أو رقم الواتساب" required autocomplete="off">
+        <label for="contact"><span data-i18n="apply.contact">رابط الحساب / رقم التواصل</span> <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="contact" name="contact" placeholder="رابط إنستغرام أو رقم الواتساب" data-i18n-ph="apply.contactPh" required autocomplete="off">
       </div>
 
       <div class="field">
-        <label for="description">وصف قصير للمبيعات</label>
-        <textarea id="description" name="description" rows="4" placeholder="توصيف مختصر لما يقدمه مشروعك..."></textarea>
+        <label for="description" data-i18n="apply.desc">وصف قصير للمبيعات</label>
+        <textarea id="description" name="description" rows="4" placeholder="توصيف مختصر لما يقدمه مشروعك..." data-i18n-ph="apply.descPh"></textarea>
       </div>
 
-      <p class="note"><b>تنبيه:</b> عند إرسال البيانات سيفتح لك تطبيق البريد، يرجى إرفاق <b>3 إلى 5 صور</b> للمشروع قبل الضغط على زر الإرسال.</p>
+      <p class="note" data-i18n-html="apply.note"><b>تنبيه:</b> عند إرسال البيانات سيفتح لك تطبيق البريد، يرجى إرفاق <b>3 إلى 5 صور</b> للمشروع قبل الضغط على زر الإرسال.</p>
 
-      <button class="start" type="submit">إرسال البيانات عبر البريد</button>
+      <button class="start" type="submit" data-i18n="apply.submit">إرسال البيانات عبر البريد</button>
       <p class="form-status" id="applyStatus" role="status" aria-live="polite"></p>
     </form>
   </section>
@@ -250,7 +252,7 @@
         <strong>المحتوى والدعم</strong>
         <span>قصص الأسر المنتجة: ميمونة الضباعي , ايات الجبان</span>
         <span>جهات تدعم الأسر المنتجة: ألين الشعلان</span>
-        <span>التواصل الاجتماعي: بسمة سعلس</span>
+        <span>التواصل الاجتماعي: بسمة سلعس</span>
         <span>تصميم شعار الموقع: عنود عبدة </span>
       </div>
     </div>
@@ -258,8 +260,10 @@
   </div>
 </footer>
 
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 <script src="families-data.js"></script>
+<script src="families-en.js"></script>
 <script src="supabase-config.js"></script>
 <script src="extras.js"></script>
 </body>

@@ -24,6 +24,7 @@ const MSG = {
   mailOpening: "جارٍ فتح تطبيق البريد... لا تنسَ إرفاق 3 إلى 5 صور."
 };
 
+const M = k => (window.t ? window.t("msg." + k, MSG[k]) : MSG[k]);
 const status = $("#status");
 const setStatus = text => { if (status) status.textContent = text; };
 
@@ -47,9 +48,9 @@ function parseJwt(token) {
 
 function handleCredentialResponse(response) {
   const payload = response?.credential ? parseJwt(response.credential) : null;
-  if (payload?.name) setStatus(MSG.welcome + payload.name);
-  else if (response?.credential) setStatus(MSG.signedIn);
-  else setStatus(MSG.signInError);
+  if (payload?.name) setStatus(M("welcome") + payload.name);
+  else if (response?.credential) setStatus(M("signedIn"));
+  else setStatus(M("signInError"));
 }
 
 function initGoogleAuth() {
@@ -62,11 +63,11 @@ function initGoogleAuth() {
 }
 
 function requestGoogleSignIn() {
-  setStatus(MSG.redirect);
-  if (!window.google?.accounts?.id) return setStatus(MSG.signInError);
+  setStatus(M("redirect"));
+  if (!window.google?.accounts?.id) return setStatus(M("signInError"));
 
   window.google.accounts.id.prompt(n => {
-    if (n.isNotDisplayed?.() || n.isSkippedMoment?.()) setStatus(MSG.gsiBlocked);
+    if (n.isNotDisplayed?.() || n.isSkippedMoment?.()) setStatus(M("gsiBlocked"));
   });
 }
 
@@ -78,7 +79,7 @@ function initThemeToggle() {
   btn.addEventListener("click", () => {
     const wasDark = root.dataset.theme === "dark";
     root.dataset.theme = wasDark ? "light" : "dark";
-    btn.setAttribute("aria-label", wasDark ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح");
+    btn.setAttribute("aria-label", window.t ? window.t(wasDark ? "theme.dark" : "theme.light") : (wasDark ? "تفعيل الوضع الداكن" : "تفعيل الوضع الفاتح"));
     btn.setAttribute("aria-pressed", String(!wasDark));
   });
 }
@@ -160,7 +161,7 @@ function initSearch() {
 
     if (!query) {
       navigateTo("page-home");
-      setStatus(MSG.emptySearch);
+      setStatus(M("emptySearch"));
       input.focus();
       return;
     }
@@ -169,7 +170,7 @@ function initSearch() {
     const hits = window.searchFamilies?.(input.value.trim()) ?? 0;
     if (hits) {
       $('.nav a[data-page="page-about"]').click();
-      setStatus(`تم العثور على ${hits} نتيجة في الأسر المنتجة`);
+      setStatus(M("foundFam").replace("{n}", hits));
       return;
     }
 
@@ -179,17 +180,17 @@ function initSearch() {
 
     if (!match) {
       navigateTo("page-home");
-      setStatus(MSG.noResults);
+      setStatus(M("noResults"));
       return;
     }
 
     const link = $$(".nav a[data-page]").find(a => a.dataset.page === match.id);
     if (link) {
       link.click();
-      setStatus(`تم العثور على نتائج في: ${link.textContent.trim()}`);
+      setStatus(M("foundIn").replace("{p}", link.textContent.trim()));
     } else {
       navigateTo(match.id);
-      setStatus("تم العثور على نتائج");
+      setStatus(M("found"));
     }
   });
 }
@@ -218,7 +219,7 @@ function initApplyForm() {
     required.forEach(id => $("#" + id, form).classList.toggle("invalid", missing.includes(id)));
 
     if (missing.length) {
-      say(MSG.required, true);
+      say(M("required"), true);
       $("#" + missing[0], form).focus();
       return;
     }
@@ -233,7 +234,7 @@ function initApplyForm() {
       `(تذكير: يرجى إرفاق 3 إلى 5 صور للمشروع مع هذه الرسالة)`
     );
 
-    say(MSG.mailOpening);
+    say(M("mailOpening"));
     window.location.href = `mailto:${APPLY_EMAIL}?subject=${subject}&body=${body}`;
   });
 }
@@ -260,7 +261,7 @@ function init() {
   if (!initGoogleAuth()) {
     const gsi = $('script[src*="accounts.google.com/gsi/client"]');
     gsi?.addEventListener("load", initGoogleAuth, { once: true });
-    gsi?.addEventListener("error", () => setStatus(MSG.gsiLoadError), { once: true });
+    gsi?.addEventListener("error", () => setStatus(M("gsiLoadError")), { once: true });
   }
 }
 
