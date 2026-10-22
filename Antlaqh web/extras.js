@@ -27,6 +27,20 @@
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeBox(); });
 
     const liked = new Set();
+    const likeTotals = new Map();
+    let visitorId;
+    try {
+      visitorId = localStorage.getItem("antlaqh:visitor-id");
+      if (!visitorId || !/^[0-9a-f-]{36}$/i.test(visitorId)) {
+        visitorId = crypto.randomUUID();
+        localStorage.setItem("antlaqh:visitor-id",visitorId);
+      }
+    } catch { visitorId = null; }
+    const likeKey = name => "antlaqh:liked:" + encodeURIComponent(name);
+    const hasLiked = name => {
+      try { return localStorage.getItem(likeKey(name)) === "1"; }
+      catch { return liked.has(name); }
+    };
     // Public reviews via Supabase REST API. Only a publishable/anon key belongs in config.
     const config = window.ANTLAQH_SUPABASE || {};
     const supabaseReady = /^https:\/\/[^/]+\.supabase\.co\/?$/.test(config.url || "") &&
@@ -40,23 +54,65 @@
         "Content-Type": "application/json", ...options.headers }
     }).then(async response => {
       if (!response.ok) throw new Error("Supabase request failed: " + response.status);
-      return response.status === 204 ? null : response.json();
+      const body = await response.text(); return body ? JSON.parse(body) : null;
     });
+    const limitKey = name => "antlaqh:review-count:v1:" + encodeURIComponent(name);
+    const reviewCount = name => { try { return Math.max(0, Number(localStorage.getItem(limitKey(name))) || 0); } catch { return 3; } };
+    const saveCount = (name,count) => { try { localStorage.setItem(limitKey(name),String(count)); return true; } catch { return false; } };
+    const limitMessage = "لقد وصلت إلى الحد الأقصى للتعليقات (3 تعليقات لهذا المتجر).";
+    const loadLikeTotals = async () => {
+      if (!supabaseReady) return;
+      try {
+        const rows = await api("store_like_totals?select=business_name,like_count");
+        for (const row of rows) likeTotals.set(row.business_name,Number(row.like_count)||0);
+        document.querySelectorAll("#reel .post").forEach(post => {
+          const count=post.querySelector(".like-count");
+          if(count)count.textContent=String(likeTotals.get(post.dataset.name)||0);
+        });
+      } catch(error) { console.error("Unable to load like totals",error); }
+    };
+    const reviewItem = r => '<div class="review-item"><strong>' + safeText(r.customer_name) + '</strong> <span class="review-stars">' + "★".repeat(r.rating) + "☆".repeat(5-r.rating) + '</span><p>' + safeText(r.comment) + '</p></div>';
     const reviewsHTML = name => {
       const reviews = reviewCache.get(name) || [];
-      const entries = reviews.map(r =>
-        '<div class="review-item"><strong>' + safeText(r.customer_name) + '</strong> <span class="review-stars">' +
-        "★".repeat(r.rating) + "☆".repeat(5 - r.rating) +
-        '</span><p>' + safeText(r.comment) + '</p></div>').join("");
-      return '<section class="customer-reviews"><h3>تقييمات العملاء</h3>' +
-        '<p class="review-note">' + (supabaseReady ? 'تظهر التقييمات للجميع فور إرسالها.' : 'التقييمات غير متاحة مؤقتًا حتى يتم ربط قاعدة البيانات.') + '</p>' +
-        '<div class="review-list">' + (entries || '<p class="review-empty">لا توجد تقييمات منشورة بعد.</p>') + '</div>' +
-        (supabaseReady ? '<form class="review-form"><label>اسمك<input name="customer_name" type="text" required minlength="2" maxlength="60" autocomplete="name" placeholder="اكتبي اسمك"></label>' +
-        '<label>تقييمك<select name="rating" required><option value="">اختاري عدد النجوم</option>' +
-        [5,4,3,2,1].map(n => '<option value="' + n + '">' + "★".repeat(n) + ' (' + n + ')</option>').join("") +
-        '</select></label><label>اكتبي رأيك<textarea name="review" required minlength="3" maxlength="500" rows="3" placeholder="كيف كانت تجربتك مع المتجر؟"></textarea></label>' +
-        '<button type="submit">إرسال التقييم</button><p class="review-status" role="status" aria-live="polite"></p></form>' : '') + '</section>';
+      if (!reviews.length) return '<section class="customer-reviews" aria-label="تقييمات العملاء"></section>';
+      const first = reviewItem(reviews[0]);
+      
+      return '<section class="customer-reviews" aria-label="تقييمات العملاء"><div class="review-list">'+first+'</div>' +
+        (reviews.length>1 ? '<button type="button" class="review-more-open">إظهار المزيد ('+(reviews.length-1)+') ⌄</button>' : '') + '</section>';
     };
+    const popupHTML = name => {
+      const form = supabaseReady ? '<form class="review-form"><label>اسمك<input name="customer_name" type="text" required minlength="2" maxlength="60" autocomplete="name" placeholder="اكتبي اسمك"></label><label>تقييمك<select name="rating" required><option value="">اختاري عدد النجوم</option>' +
+        [5,4,3,2,1].map(n=>'<option value="'+n+'">'+ "★".repeat(n) +' ('+n+')</option>').join("") +
+        '</select></label><label>تعليقك (اختياري)<textarea name="review" maxlength="500" rows="3" placeholder="كيف كانت تجربتك مع المتجر؟"></textarea></label><button type="submit">إرسال التقييم</button><p class="review-status" role="status" aria-live="polite"></p></form>' : '<p class="review-note">التقييمات غير متاحة مؤقتًا.</p>';
+      return '<div class="review-dialog-backdrop"><section class="review-dialog" role="dialog" aria-modal="true" aria-label="أضف تعليقًا"><header><h3>أضف تعليقًا</h3><button type="button" class="review-close" aria-label="إغلاق">✕</button></header><div class="review-dialog-compose">'+form+'</div></section></div>';
+    };
+    const allReviewsHTML = name => {
+      const reviews = reviewCache.get(name) || [];
+      return '<div class="review-dialog-backdrop"><section class="review-dialog" role="dialog" aria-modal="true" aria-label="تعليقات '+safeText(name)+'"><header><h3>تعليقات '+safeText(name)+'</h3><button type="button" class="review-close" aria-label="إغلاق">✕</button></header><div class="review-dialog-list">'+reviews.map(reviewItem).join("")+'</div></section></div>';
+    };
+    const showAllReviews = name => {
+      dismissReview();
+      document.body.insertAdjacentHTML("beforeend",allReviewsHTML(name));
+      document.body.classList.add("reviews-modal-open");
+      document.querySelector(".review-close")?.focus();
+    };
+    const dismissReview = () => {
+      const dialog = document.querySelector(".review-dialog-backdrop");
+      if (dialog) dialog.remove();
+      document.body.classList.remove("reviews-modal-open");
+    };
+    const showReview = name => {
+      dismissReview();
+      document.body.insertAdjacentHTML("beforeend",popupHTML(name));
+      document.querySelector(".review-dialog").dataset.businessName=name;
+      document.body.classList.add("reviews-modal-open");
+      if (reviewCount(name)>=3) { const form=document.querySelector(".review-dialog .review-form"); if(form){form.querySelector('[type="submit"]').disabled=true;form.querySelector(".review-status").textContent=limitMessage;} }
+      document.querySelector(".review-close")?.focus();
+    };
+    document.addEventListener("click",e=>{
+      if (e.target.matches(".review-dialog-backdrop, .review-close")) dismissReview();
+    });
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")dismissReview();});
     const refreshReviews = async () => {
       if (!supabaseReady) return;
       try {
@@ -136,7 +192,7 @@
     },{passive:true});
 
     const postHTML = f => {
-      const on = liked.has(f.name);
+      const on = hasLiked(f.name);
       return `
       <article class="post" data-name="${f.name}">
         <header class="post-head">
@@ -145,12 +201,12 @@
         </header>
         ${gallery(f)}
         <div class="post-actions">
-          <button type="button" class="act like${on ? " on" : ""}" aria-pressed="${on}" aria-label="إعجاب">${on ? "♥" : "♡"}</button>
+          <button type="button" class="act like${on ? " on" : ""}" aria-pressed="${on}" aria-label="إعجاب">${on ? "♥" : "♡"}</button><span class="like-count" aria-label="عدد الإعجابات">${likeTotals.get(f.name) || 0}</span>
           <button type="button" class="act share" aria-label="مشاركة">⤴</button>
         </div>
         <div class="post-body">
           <p><b>${f.name}</b> ${f.desc}</p>
-          <a class="btn-link" href="${f.link}" target="_blank" rel="noopener">زيارة المتجر</a>
+          <div class="store-buttons"><a class="btn-link" href="${f.link}" target="_blank" rel="noopener">زيارة المتجر</a><button type="button" class="btn-link store-comment-btn review-open">أضف تعليقًا</button></div>
         </div>
         ${reviewsHTML(f.name)}
       </article>`;
@@ -173,8 +229,10 @@
     });
     find.addEventListener("input", () => { term = find.value.trim(); filter(); });
 
-    reel.addEventListener("click", e => {
+    reel.addEventListener("click", async e => {
       const post = e.target.closest(".post"); if (!post) return;
+      if (e.target.closest(".review-open")) { showReview(post.dataset.name); return; }
+      if (e.target.closest(".review-more-open")) { showAllReviews(post.dataset.name); return; }
       const nav = e.target.closest(".g-btn");
       if (nav) {
         const fade=nav.closest(".fade-gallery");
@@ -193,10 +251,21 @@
       const f = FAMILIES.find(x => x.name === post.dataset.name); if (!f) return;
       const like = e.target.closest(".like"), share = e.target.closest(".share");
       if (like) {
-        liked.has(f.name) ? liked.delete(f.name) : liked.add(f.name);
-        const on = liked.has(f.name);
-        like.classList.toggle("on", on); like.setAttribute("aria-pressed", on);
-        like.textContent = on ? "♥" : "♡";
+        if (!supabaseReady || !visitorId || like.disabled) return;
+        const previous=hasLiked(f.name),next=!previous;
+        like.disabled=true;
+        try {
+          const total=await api("rpc/toggle_store_like",{method:"POST",body:JSON.stringify({p_business_name:f.name,p_visitor_id:visitorId,p_like:next})});
+          if(next)liked.add(f.name);else liked.delete(f.name);
+          try { localStorage.setItem(likeKey(f.name),next?"1":"0"); } catch {}
+          like.classList.toggle("on",next);
+          like.setAttribute("aria-pressed",String(next));
+          like.textContent=next?"♥":"♡";
+          likeTotals.set(f.name,Number(total)||0);
+          const count=post.querySelector(".like-count");
+          if(count)count.textContent=String(likeTotals.get(f.name));
+        } catch(error) { console.error("Unable to save like",error); }
+        finally {like.disabled=false;}
       }
       if (share) {
         if (navigator.share) navigator.share({ title: f.name, url: f.link }).catch(() => {});
@@ -207,31 +276,27 @@
     });
 
 
-    reel.addEventListener("submit", async e => {
-      const form = e.target.closest(".review-form");
-      if (!form || !supabaseReady) return;
+    document.addEventListener("submit",async e=>{
+      const form=e.target.closest(".review-dialog .review-form");
+      if(!form || !supabaseReady)return;
       e.preventDefault();
-      const post = form.closest(".post");
-      const customerName = form.elements.customer_name.value.trim();
-      const rating = Number(form.elements.rating.value);
-      const comment = form.elements.review.value.trim();
-      if (!post || customerName.length < 2 || customerName.length > 60 ||
-          !Number.isInteger(rating) || rating < 1 || rating > 5 ||
-          comment.length < 3 || comment.length > 500) return;
-      const button = form.querySelector('button[type="submit"]');
-      const status = form.querySelector(".review-status");
-      button.disabled = true;
-      status.textContent = "جارٍ إرسال التقييم...";
-      try {
-        await api("reviews", { method: "POST", headers: { Prefer: "return=minimal" },
-          body: JSON.stringify({ business_name: post.dataset.name, customer_name: customerName, rating, comment }) });
-        form.reset();
-        status.textContent = "شكرًا! تم نشر تقييمك.";
+      const name=document.querySelector(".review-dialog")?.dataset.businessName;
+      const customerName=form.elements.customer_name.value.trim();
+      const rating=Number(form.elements.rating.value);
+      const comment=form.elements.review.value.trim();
+      if(!name || customerName.length<2 || customerName.length>60 || !Number.isInteger(rating) || rating<1 || rating>5 || comment.length>500)return;
+      const button=form.querySelector('[type="submit"]'),status=form.querySelector(".review-status");
+      if(reviewCount(name)>=3){button.disabled=true;status.textContent=limitMessage;return;}
+      button.disabled=true;status.textContent="جارٍ إرسال التقييم...";
+      try{
+        await api("reviews",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({business_name:name,customer_name:customerName,rating,comment})});
+        const count=reviewCount(name)+1;
+        const saved=saveCount(name,count);
+        form.reset();status.textContent=saved?(count>=3?"تم إرسال تقييمك بنجاح ✓ "+limitMessage:"تم إرسال تقييمك بنجاح ✓ (المتبقي: "+(3-count)+")"):"تم إرسال تقييمك، لكن تعذّر حفظ عداد التعليقات.";
+        if(count>=3||!saved)button.disabled=true;
         await refreshReviews();
-      } catch (error) {
-        status.textContent = "تعذّر إرسال التقييم. حاولي مرة أخرى.";
-        console.error(error);
-      } finally { button.disabled = false; }
+      }catch(error){console.error(error);status.textContent="تعذّر تأكيد إرسال التقييم. تحققي من ظهوره قبل إعادة المحاولة.";}
+      finally{if(reviewCount(name)<3)button.disabled=false;}
     });
 
     // عدّاد الصور 1 / 3
@@ -251,7 +316,7 @@
       return n;
     };
 
-    renderChips(); filter(); refreshReviews();
+    renderChips(); filter(); refreshReviews(); loadLikeTotals();
   }
 
   /* ---------- Pricing calculator ---------- */
