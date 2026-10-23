@@ -156,13 +156,13 @@
       const cls = `slide${i === 0 ? " active" : ""}${isVid(src) ? " is-video" : ""}`;
       const hid = fade ? ` aria-hidden="${i !== 0}"` : "";
       return isVid(src)
-        ? `<div class="${cls}"${hid}><video src="${src}#t=0.001" playsinline preload="metadata" ${fade ? "muted" + (i === 0 ? " autoplay" : "") : "controls"}></video></div>`
+        ? `<div class="${cls}"${hid}><video src="${src}#t=0.001" playsinline preload="metadata" ${fade ? "muted loop" + (i === 0 ? " autoplay" : "") : "muted autoplay loop controls"}></video></div>`
         : `<div class="${cls}"${hid} style="--bg:url('${src}')"><img src="${src}" alt="${T("productsOf")} ${f.name}" loading="lazy"></div>`;
     };
     const gallery = f => {
       const pics = [...(f.video ? [f.video] : []), ...(f.images && f.images.length ? f.images : [f.image])].filter(Boolean);
       if (!pics.length) return `<img class="post-img" src="${art(f)}" alt="${T("productsOf")} ${f.name}">`;
-      const many = pics.length > 1, fade = many;
+      const many = pics.length > 1, fade = many;   // every store with 2+ pictures uses the 3-second crossfade animation
       return `<div class="gallery${fade ? " fade-gallery" : ""}" data-current="0"><div class="slides">${pics.map((p, i) => slideHTML(p, f, i, fade)).join("")}</div>${many ? `<button type="button" class="g-btn prev" data-dir="prev" aria-label="${T("prev")}">${chev}</button><button type="button" class="g-btn next" data-dir="next" aria-label="${T("next")}">${chev}</button><span class="count">1 / ${pics.length}</span>` : ""}</div>`;
     };
     // frame ratio follows the first item; each item picks cover/contain so there are no big bars
@@ -178,6 +178,7 @@
       els.forEach(el => { el.addEventListener(el.tagName === "VIDEO" ? "loadedmetadata" : "load", apply); });
       apply();
     });
+    const slideMs = g => (g.closest(".post")?.dataset.name === "تصاميم بلومي" ? 2500 : 3000);   // Bloomy: 2.5s, others: 3s
     const showFade = (g, index) => {
       const items = [...g.querySelectorAll(".slides > .slide")];
       if (!items.length) return;
@@ -190,25 +191,26 @@
       });
       g.dataset.current = String(i);
       g.dataset.shownAt = String(Date.now());
-      g.dataset.nextAt = String(Date.now() + 3000);
+      g.dataset.nextAt = String(Date.now() + slideMs(g));
       g.querySelector(".count").textContent = `${i + 1} / ${items.length}`;
     };
     setInterval(() => {
       if (document.hidden || !box.hidden) return;
+      const now = Date.now();
+      // Bloomy-style crossfade galleries: every slide (photo or video) lasts 3 seconds
       reel.querySelectorAll(".fade-gallery").forEach(g => {
-        if (Date.now() < Number(g.dataset.pauseUntil||0)) return;
-        const act = g.querySelector(".slide.active"), v = act && act.querySelector("video");
-        const next = () => showFade(g, Number(g.dataset.current||0)+1);
-        if (v) {   // a video plays to its end before the slideshow moves on
-          if (!g.dataset.shownAt) g.dataset.shownAt = String(Date.now());
-          const waited = Date.now() - Number(g.dataset.shownAt);
-          if (v.ended || (v.duration && v.currentTime >= v.duration - 0.15) || (v.paused && v.readyState >= 2 && waited > 6000) || waited > 120000) next();
-          return;
-        }
-        if (!g.dataset.nextAt) { g.dataset.nextAt=String(Date.now()+3000); return; }
-        if (Date.now() >= Number(g.dataset.nextAt)) next();
+        const av = g.querySelector(".slide.active video");   // videos start on their own (muted)
+        if (av && av.paused && av.offsetParent !== null) av.play().catch(() => {});
+        if (now < Number(g.dataset.pauseUntil || 0)) return;
+        if (!g.dataset.nextAt) { g.dataset.nextAt = String(now + slideMs(g)); return; }
+        if (now >= Number(g.dataset.nextAt)) showFade(g, Number(g.dataset.current || 0) + 1);
       });
     },250);
+    // a manual touch/click pauses a gallery's auto-advance for 9 seconds
+    reel.addEventListener("pointerdown", e => {
+      const g = e.target.closest(".gallery");
+      if (g) g.dataset.pauseUntil = String(Date.now() + 9000);
+    });
     reel.addEventListener("touchstart", e => {
       const g=e.target.closest(".fade-gallery");
       if(g) g.dataset.touchX=String(e.touches[0].clientX);

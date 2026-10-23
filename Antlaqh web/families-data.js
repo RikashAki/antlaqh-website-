@@ -33,8 +33,18 @@ const FAMILIES = [
     cat: "projects",
     desc: "مو مجرد تصاميم… عالم من الإبداع والتقنية! ✨ من فيديوهات وأنيميشن بالذكاء الاصطناعي، وتصميم وتطوير المواقع الإلكترونية، والألعاب والأنشطة التفاعلية، وتجارب الواقع المعزز (AR) والقصص التفاعلية (H5P)، إلى العروض التقديمية الاحترافية، وبكجات التخرج والسينورز المتكاملة (عروض، ألعاب، إعلانات، توزيعات وملفات)، نحوّل أفكارك إلى أعمال تخطف الأنظار! 💗\n\n💌 وعندك فكرة مختلفة؟ مهما كانت فكرتك، شاركينا إياها وخلّي علينا نحوّلها إلى واقع بلمسة إبداعية تميزك! ✨\n\nتواصلي معنا الآن!",
     link: "https://api.whatsapp.com/send?phone=9660500838531",
-    images: ["photos/bloomy store photos/675416612_1792429185320009.mp4","photos/bloomy store photos/bloomy_video_2_13s.mp4","photos/bloomy store photos/01.jpeg","photos/bloomy store photos/02.jpeg","photos/bloomy store photos/girls presentation.png","photos/bloomy store photos/09.jpeg","photos/bloomy store photos/03.jpeg","photos/bloomy store photos/05.jpeg","photos/bloomy store photos/08.jpeg","photos/bloomy store photos/06.jpeg"],
-    tags: ["تصاميم", "مشاريع"]
+    images: [
+  "photos/bloomy store photos/675416612_1792429185320009.mp4", // 1  video
+  "photos/bloomy store photos/01.jpeg",                       // 2  بالوعي نحمي وطننا
+  "photos/bloomy store photos/07.jpeg",                       // 3  Guess the Seniors
+  "photos/bloomy store photos/09.jpeg",                       // 4  كيف يؤثر تلوث الهواء علينا؟
+  "photos/bloomy store photos/bloomy_video_2_13s.mp4",        // 5  video
+  "photos/bloomy store photos/03.jpeg",                       // 6  سؤال فكري وناقشي
+  "photos/bloomy store photos/05.jpeg",                       // 7  أسبوع يتجاوز حدود الأرض
+  "photos/bloomy store photos/02.jpeg",                       // 8  أهداف الدرس
+  "photos/bloomy store photos/08.jpeg",                       // 9  معًا نحو هواء أنقى
+  "photos/bloomy store photos/06.jpeg"                        // 10 كون أكبر مما نتخيل
+],
   },
   {
     name: "كوكيز سارونه",
